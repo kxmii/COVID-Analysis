@@ -1,7 +1,51 @@
+/* 
+Queries for Tableau
+
+1. Deathrate Worldwide
+2. Total Deaths by Country
+3. Countries by Infection Rate
+4. Infection Rate over Time
+*/
+
+--1.
+select sum(new_cases) as total_cases, sum(cast(new_deaths as int)) as total_deaths, sum(cast(new_deaths as int))/sum(new_cases)*100 as deathrate
+from [Covid Project]..CovidDeaths
+where continent is not null
+order by 1,2
+
+--2.
+select location, sum(cast(new_deaths as int)) as totaldeaths
+from [Covid Project]..CovidDeaths
+where continent is null
+and location not in ('World', 'European Union', 'International') 
+--have to manually remove redundant locations.
+group by location
+order by totaldeaths desc
+
+--3.
+select location, population, max(total_cases) as totalinfections,  max(total_cases/population*100) as infectionrate
+From [Covid Project]..CovidDeaths
+Group by location, population
+order by infectionrate desc
+
+--4.
+select location, population, date, max(total_cases) as totalinfections,  max(total_cases/population*100) as infectionrate
+From [Covid Project]..CovidDeaths
+Group by location, population, date
+order by infectionrate
+
+
+
+
+
+
+--Additional Queries.
+
 --Select Data by Country-Date
 select Location, date, total_cases, new_cases, total_deaths, population
 from [Covid Project]..CovidDeaths
 order by 1,2
+
 
 --Deaths vs Total Cases in Canada (Deathrate in Canada)
 select Location, date, total_cases, total_deaths, (total_deaths/total_cases*100) as Deathrate
